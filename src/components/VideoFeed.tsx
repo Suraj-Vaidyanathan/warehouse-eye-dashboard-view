@@ -14,6 +14,8 @@ interface VideoFeedProps {
 export const VideoFeed = ({ cameraId, location, detectionCount, status }: VideoFeedProps) => {
   const [currentDetections, setCurrentDetections] = useState(detectionCount);
   const [lastDetection, setLastDetection] = useState("Package");
+  const [showLicensePlate, setShowLicensePlate] = useState(false);
+  const [currentPlate, setCurrentPlate] = useState("ABC-123");
 
   useEffect(() => {
     if (status === "active") {
@@ -22,8 +24,17 @@ export const VideoFeed = ({ cameraId, location, detectionCount, status }: VideoF
         const random = Math.random();
         if (random > 0.7) {
           setCurrentDetections(prev => prev + 1);
-          const detectionTypes = ["Package", "Pallet", "Person", "Forklift", "Robot"];
-          setLastDetection(detectionTypes[Math.floor(Math.random() * detectionTypes.length)]);
+          const detectionTypes = ["Package", "Pallet", "Person", "Forklift", "Vehicle"];
+          const newDetection = detectionTypes[Math.floor(Math.random() * detectionTypes.length)];
+          setLastDetection(newDetection);
+          
+          // Show license plate for vehicle detections
+          if (newDetection === "Vehicle" && Math.random() > 0.5) {
+            const plates = ["ABC-123", "XYZ-789", "DEF-456", "GHI-012"];
+            setCurrentPlate(plates[Math.floor(Math.random() * plates.length)]);
+            setShowLicensePlate(true);
+            setTimeout(() => setShowLicensePlate(false), 3000);
+          }
         }
       }, 3000);
 
@@ -71,6 +82,20 @@ export const VideoFeed = ({ cameraId, location, detectionCount, status }: VideoF
                     Robot
                   </div>
                 </div>
+                
+                {/* License Plate Detection */}
+                {showLicensePlate && (
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                    <div className="w-32 h-8 border-2 border-yellow-400 animate-pulse">
+                      <div className="absolute -top-8 left-0 text-sm font-mono text-yellow-400 bg-black/80 px-2 py-1 rounded">
+                        {currentPlate}
+                      </div>
+                      <div className="absolute -bottom-6 left-0 text-xs text-yellow-400 bg-black/50 px-1 rounded">
+                        License Plate
+                      </div>
+                    </div>
+                  </div>
+                )}
               </>
             )}
           </div>
@@ -90,6 +115,13 @@ export const VideoFeed = ({ cameraId, location, detectionCount, status }: VideoF
           <div className="absolute bottom-3 left-3 bg-black/70 rounded px-2 py-1">
             <span className="text-xs text-slate-200">
               Detections: <span className="text-blue-400 font-semibold">{currentDetections}</span>
+            </span>
+          </div>
+
+          {/* Goods Counter */}
+          <div className="absolute bottom-3 right-3 bg-black/70 rounded px-2 py-1">
+            <span className="text-xs text-slate-200">
+              Goods: <span className="text-green-400 font-semibold">{Math.floor(currentDetections * 0.7)}</span>
             </span>
           </div>
         </div>

@@ -8,26 +8,44 @@ import { AnalyticsChart } from "@/components/AnalyticsChart";
 import { AlertPanel } from "@/components/AlertPanel";
 import { ActivityTimeline } from "@/components/ActivityTimeline";
 import { KPICard } from "@/components/KPICard";
-import { LayoutDashboard, ChartLine, ArrowUp, ArrowDown } from "lucide-react";
+import { VehicleDetection } from "@/components/VehicleDetection";
+import { LayoutDashboard, ChartLine } from "lucide-react";
 
 const Index = () => {
   const [isSystemOnline, setIsSystemOnline] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [goodsCount, setGoodsCount] = useState(12847);
+  const [vehicleCount, setVehicleCount] = useState(234);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
+      
+      // Simulate real-time updates
+      if (Math.random() > 0.8) {
+        setGoodsCount(prev => prev + Math.floor(Math.random() * 5) + 1);
+      }
+      if (Math.random() > 0.9) {
+        setVehicleCount(prev => prev + 1);
+      }
     }, 1000);
     return () => clearInterval(timer);
   }, []);
 
   const kpiData = [
     {
-      title: "Items Processed",
-      value: "12,847",
+      title: "Goods Transported",
+      value: goodsCount.toLocaleString(),
       change: "+8.2%",
       trend: "up" as const,
       description: "Last 24 hours"
+    },
+    {
+      title: "Vehicles Detected",
+      value: vehicleCount.toString(),
+      change: "+12.1%",
+      trend: "up" as const,
+      description: "Today"
     },
     {
       title: "Detection Accuracy",
@@ -42,13 +60,6 @@ const Index = () => {
       change: "-0.02%",
       trend: "down" as const,
       description: "Last 30 days"
-    },
-    {
-      title: "Processing Speed",
-      value: "2.4s",
-      change: "-0.1s",
-      trend: "up" as const,
-      description: "Avg per item"
     }
   ];
 
@@ -118,6 +129,9 @@ const Index = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Vehicle Detection Section */}
+          <VehicleDetection />
         </div>
 
         {/* Alerts Panel */}
@@ -128,17 +142,30 @@ const Index = () => {
       </div>
 
       {/* Analytics Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="bg-slate-900 border-slate-700">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <ChartLine className="h-5 w-5 text-blue-400" />
-              <span>Hourly Throughput</span>
+              <span>Goods per Hour</span>
             </CardTitle>
-            <CardDescription>Items processed per hour today</CardDescription>
+            <CardDescription>Items transported hourly</CardDescription>
           </CardHeader>
           <CardContent>
-            <AnalyticsChart type="throughput" />
+            <AnalyticsChart type="goods" />
+          </CardContent>
+        </Card>
+
+        <Card className="bg-slate-900 border-slate-700">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <ChartLine className="h-5 w-5 text-green-400" />
+              <span>Vehicles per Hour</span>
+            </CardTitle>
+            <CardDescription>Vehicle detection frequency</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <AnalyticsChart type="vehicles" />
           </CardContent>
         </Card>
 
@@ -148,7 +175,7 @@ const Index = () => {
               <ChartLine className="h-5 w-5 text-amber-400" />
               <span>Detection Performance</span>
             </CardTitle>
-            <CardDescription>Object detection accuracy over time</CardDescription>
+            <CardDescription>Object detection accuracy</CardDescription>
           </CardHeader>
           <CardContent>
             <AnalyticsChart type="accuracy" />

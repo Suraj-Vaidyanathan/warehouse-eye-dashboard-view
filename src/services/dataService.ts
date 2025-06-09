@@ -1,16 +1,12 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
+
+type Tables = Database['public']['Tables'];
 
 export const dataService = {
   // Goods management
-  async addGoods(goods: {
-    item_name: string;
-    quantity: number;
-    location: string;
-    camera_id?: string;
-    batch_id?: string;
-    confidence_score?: number;
-  }) {
+  async addGoods(goods: Tables['goods']['Insert']) {
     const { data, error } = await supabase
       .from('goods')
       .insert([goods])
@@ -34,14 +30,7 @@ export const dataService = {
   },
 
   // Vehicle management
-  async addVehicle(vehicle: {
-    license_plate: string;
-    vehicle_type: string;
-    location: string;
-    camera_id?: string;
-    driver_name?: string;
-    confidence_score?: number;
-  }) {
+  async addVehicle(vehicle: Tables['vehicles']['Insert']) {
     const { data, error } = await supabase
       .from('vehicles')
       .insert([vehicle])
@@ -69,7 +58,7 @@ export const dataService = {
     const { data, error } = await supabase
       .from('cameras')
       .update({ 
-        detection_count: supabase.rpc('increment_detection_count', { camera_id: cameraId }),
+        detection_count: supabase.sql`detection_count + 1`,
         last_detection: new Date().toISOString(),
         updated_at: new Date().toISOString()
       })
@@ -82,13 +71,7 @@ export const dataService = {
   },
 
   // Alert management
-  async createAlert(alert: {
-    alert_type: string;
-    title: string;
-    description: string;
-    camera_id?: string;
-    location?: string;
-  }) {
+  async createAlert(alert: Tables['alerts']['Insert']) {
     const { data, error } = await supabase
       .from('alerts')
       .insert([alert])
@@ -112,13 +95,7 @@ export const dataService = {
   },
 
   // Activity logging
-  async logActivity(activity: {
-    activity_type: string;
-    description: string;
-    camera_id?: string;
-    location?: string;
-    metadata?: any;
-  }) {
+  async logActivity(activity: Tables['activities']['Insert']) {
     const { data, error } = await supabase
       .from('activities')
       .insert([activity])
@@ -130,20 +107,14 @@ export const dataService = {
   },
 
   // Analytics data
-  async addAnalyticsData(data: {
-    metric_type: string;
-    hour_timestamp: string;
-    value: number;
-    location?: string;
-    camera_id?: string;
-  }) {
-    const { data: analyticsData, error } = await supabase
+  async addAnalyticsData(analyticsData: Tables['analytics_data']['Insert']) {
+    const { data, error } = await supabase
       .from('analytics_data')
-      .insert([data])
+      .insert([analyticsData])
       .select()
       .single();
     
     if (error) throw error;
-    return analyticsData;
+    return data;
   }
 };

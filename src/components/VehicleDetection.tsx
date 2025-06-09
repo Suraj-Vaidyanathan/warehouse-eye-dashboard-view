@@ -5,19 +5,12 @@ import { Button } from "@/components/ui/button";
 import { useRealtimeData } from "@/hooks/useRealtimeData";
 import { dataService } from "@/services/dataService";
 import { useToast } from "@/hooks/use-toast";
+import type { Database } from "@/integrations/supabase/types";
 
-interface DetectedVehicle {
-  id: string;
-  license_plate: string;
-  detected_at: string;
-  location: string;
-  confidence_score: number;
-  vehicle_type: "truck" | "van" | "car" | "forklift";
-  status: string;
-}
+type DetectedVehicle = Database['public']['Tables']['vehicles']['Row'];
 
 export const VehicleDetection = () => {
-  const { data: detectedVehicles, loading } = useRealtimeData<DetectedVehicle>('vehicles');
+  const { data: detectedVehicles, loading } = useRealtimeData('vehicles');
   const { toast } = useToast();
 
   // Filter only active/recent vehicles
@@ -76,8 +69,8 @@ export const VehicleDetection = () => {
     return (
       <Card className="bg-slate-900 border-slate-700">
         <CardHeader>
-          <CardTitle>Vehicle Detection & License Plates</CardTitle>
-          <CardDescription>Loading vehicle data...</CardDescription>
+          <CardTitle className="text-white">Vehicle Detection & License Plates</CardTitle>
+          <CardDescription className="text-slate-300">Loading vehicle data...</CardDescription>
         </CardHeader>
       </Card>
     );
@@ -86,13 +79,13 @@ export const VehicleDetection = () => {
   return (
     <Card className="bg-slate-900 border-slate-700">
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+        <CardTitle className="flex items-center justify-between text-white">
           <span>Vehicle Detection & License Plates</span>
-          <Badge className="bg-green-600 hover:bg-green-700">
+          <Badge className="bg-green-600 hover:bg-green-700 text-white">
             {recentVehicles.length} Recent
           </Badge>
         </CardTitle>
-        <CardDescription>Real-time license plate recognition and vehicle tracking</CardDescription>
+        <CardDescription className="text-slate-300">Real-time license plate recognition and vehicle tracking</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-3 max-h-64 overflow-y-auto">
@@ -103,38 +96,38 @@ export const VehicleDetection = () => {
                   {vehicle.vehicle_type.toUpperCase()}
                 </Badge>
                 <div>
-                  <div className="font-mono text-lg font-bold text-slate-100">
+                  <div className="font-mono text-lg font-bold text-white">
                     {vehicle.license_plate}
                   </div>
-                  <div className="text-xs text-slate-400">
+                  <div className="text-xs text-slate-300">
                     {vehicle.location} • {new Date(vehicle.detected_at).toLocaleTimeString()}
                   </div>
                 </div>
               </div>
               <div className="text-right">
                 <div className="text-sm font-medium text-green-400">
-                  {vehicle.confidence_score.toFixed(1)}%
+                  {vehicle.confidence_score?.toFixed(1)}%
                 </div>
-                <div className="text-xs text-slate-500">Confidence</div>
+                <div className="text-xs text-slate-400">Confidence</div>
               </div>
             </div>
           ))}
           
           {recentVehicles.length === 0 && (
-            <div className="text-center text-slate-400 py-8">
+            <div className="text-center text-slate-300 py-8">
               No recent vehicle detections
             </div>
           )}
         </div>
         
         <div className="mt-4 flex justify-between items-center">
-          <Button variant="outline" size="sm" className="border-slate-600 hover:bg-slate-700">
+          <Button variant="outline" size="sm" className="border-slate-600 hover:bg-slate-700 text-white">
             View All Records ({detectedVehicles.length})
           </Button>
           <Button 
             variant="outline" 
             size="sm" 
-            className="border-slate-600 hover:bg-slate-700"
+            className="border-slate-600 hover:bg-slate-700 text-white"
             onClick={handleExportData}
           >
             Export Data

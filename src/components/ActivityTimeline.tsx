@@ -2,18 +2,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useRealtimeData } from "@/hooks/useRealtimeData";
+import type { Database } from "@/integrations/supabase/types";
 
-interface Activity {
-  id: string;
-  activity_type: "detection" | "processing" | "alert" | "system";
-  description: string;
-  created_at: string;
-  camera_id?: string;
-  location?: string;
-}
+type Activity = Database['public']['Tables']['activities']['Row'];
 
 export const ActivityTimeline = () => {
-  const { data: activities, loading } = useRealtimeData<Activity>('activities');
+  const { data: activities, loading } = useRealtimeData('activities');
 
   const getActivityIcon = (type: string) => {
     switch (type) {
@@ -38,8 +32,8 @@ export const ActivityTimeline = () => {
     return (
       <Card className="bg-slate-900 border-slate-700">
         <CardHeader>
-          <CardTitle>Activity Timeline</CardTitle>
-          <CardDescription>Loading activities...</CardDescription>
+          <CardTitle className="text-white">Activity Timeline</CardTitle>
+          <CardDescription className="text-slate-300">Loading activities...</CardDescription>
         </CardHeader>
       </Card>
     );
@@ -48,8 +42,8 @@ export const ActivityTimeline = () => {
   return (
     <Card className="bg-slate-900 border-slate-700">
       <CardHeader>
-        <CardTitle>Activity Timeline</CardTitle>
-        <CardDescription>Recent system activities</CardDescription>
+        <CardTitle className="text-white">Activity Timeline</CardTitle>
+        <CardDescription className="text-slate-300">Recent system activities</CardDescription>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-64">
@@ -60,9 +54,9 @@ export const ActivityTimeline = () => {
                   {getActivityIcon(activity.activity_type)}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-slate-200">{activity.description}</p>
+                  <p className="text-sm text-white">{activity.description}</p>
                   <div className="flex items-center space-x-2 mt-1">
-                    <span className="text-xs text-slate-400">
+                    <span className="text-xs text-slate-300">
                       {formatTimeAgo(activity.created_at)}
                     </span>
                     {activity.camera_id && (

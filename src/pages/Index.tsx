@@ -24,7 +24,7 @@ const Index = () => {
   const [isSystemOnline, setIsSystemOnline] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
   const { kpiData, loading: kpiLoading } = useKPIData();
-  const { data: cameras, loading: camerasLoading } = useRealtimeData<Camera>('cameras');
+  const { data: cameras, loading: camerasLoading } = useRealtimeData('cameras');
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -65,19 +65,19 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-4">
+    <div className="min-h-screen bg-slate-950 text-white p-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
             <LayoutDashboard className="h-8 w-8 text-blue-400" />
-            <h1 className="text-2xl font-bold">Warehouse Automation Hub</h1>
+            <h1 className="text-2xl font-bold text-white">Warehouse Automation Hub</h1>
           </div>
-          <Badge variant={isSystemOnline ? "default" : "destructive"} className="bg-green-600 hover:bg-green-700">
+          <Badge variant={isSystemOnline ? "default" : "destructive"} className="bg-green-600 hover:bg-green-700 text-white">
             {isSystemOnline ? "System Online" : "System Offline"}
           </Badge>
         </div>
-        <div className="text-sm text-slate-400">
+        <div className="text-sm text-slate-300">
           {currentTime.toLocaleString()}
         </div>
       </div>
@@ -95,16 +95,16 @@ const Index = () => {
         <div className="xl:col-span-2 space-y-4">
           <Card className="bg-slate-900 border-slate-700">
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center space-x-2">
+              <CardTitle className="flex items-center space-x-2 text-white">
                 <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
                 <span>Live Video Feeds</span>
               </CardTitle>
-              <CardDescription>Real-time monitoring with AI object detection</CardDescription>
+              <CardDescription className="text-slate-300">Real-time monitoring with AI object detection</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {camerasLoading ? (
-                  <div className="col-span-2 text-center text-slate-400 py-8">
+                  <div className="col-span-2 text-center text-slate-300 py-8">
                     Loading camera feeds...
                   </div>
                 ) : cameras.length > 0 ? (
@@ -118,7 +118,7 @@ const Index = () => {
                     />
                   ))
                 ) : (
-                  <div className="col-span-2 text-center text-slate-400 py-8">
+                  <div className="col-span-2 text-center text-slate-300 py-8">
                     No cameras available
                   </div>
                 )}
@@ -142,11 +142,11 @@ const Index = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="bg-slate-900 border-slate-700">
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
+            <CardTitle className="flex items-center space-x-2 text-white">
               <ChartLine className="h-5 w-5 text-blue-400" />
               <span>Goods per Hour</span>
             </CardTitle>
-            <CardDescription>Items transported hourly</CardDescription>
+            <CardDescription className="text-slate-300">Items transported hourly</CardDescription>
           </CardHeader>
           <CardContent>
             <AnalyticsChart type="goods" />
@@ -155,11 +155,11 @@ const Index = () => {
 
         <Card className="bg-slate-900 border-slate-700">
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
+            <CardTitle className="flex items-center space-x-2 text-white">
               <ChartLine className="h-5 w-5 text-green-400" />
               <span>Vehicles per Hour</span>
             </CardTitle>
-            <CardDescription>Vehicle detection frequency</CardDescription>
+            <CardDescription className="text-slate-300">Vehicle detection frequency</CardDescription>
           </CardHeader>
           <CardContent>
             <AnalyticsChart type="vehicles" />
@@ -168,11 +168,11 @@ const Index = () => {
 
         <Card className="bg-slate-900 border-slate-700">
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
+            <CardTitle className="flex items-center space-x-2 text-white">
               <ChartLine className="h-5 w-5 text-amber-400" />
               <span>Detection Performance</span>
             </CardTitle>
-            <CardDescription>Object detection accuracy</CardDescription>
+            <CardDescription className="text-slate-300">Object detection accuracy</CardDescription>
           </CardHeader>
           <CardContent>
             <AnalyticsChart type="accuracy" />

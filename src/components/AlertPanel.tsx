@@ -7,19 +7,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useRealtimeData } from "@/hooks/useRealtimeData";
 import { dataService } from "@/services/dataService";
 import { useToast } from "@/hooks/use-toast";
+import type { Database } from "@/integrations/supabase/types";
 
-interface Alert {
-  id: string;
-  alert_type: "warning" | "error" | "info";
-  title: string;
-  description: string;
-  created_at: string;
-  camera_id?: string;
-  status: string;
-}
+type Alert = Database['public']['Tables']['alerts']['Row'];
 
 export const AlertPanel = () => {
-  const { data: alerts, loading } = useRealtimeData<Alert>('alerts');
+  const { data: alerts, loading } = useRealtimeData('alerts');
   const { toast } = useToast();
 
   // Filter only active alerts
@@ -28,9 +21,9 @@ export const AlertPanel = () => {
   const getAlertBadge = (type: string) => {
     switch (type) {
       case "error": return <Badge variant="destructive">Error</Badge>;
-      case "warning": return <Badge className="bg-amber-600 hover:bg-amber-700">Warning</Badge>;
-      case "info": return <Badge variant="secondary">Info</Badge>;
-      default: return <Badge variant="secondary">Unknown</Badge>;
+      case "warning": return <Badge className="bg-amber-600 hover:bg-amber-700 text-white">Warning</Badge>;
+      case "info": return <Badge variant="secondary" className="text-white">Info</Badge>;
+      default: return <Badge variant="secondary" className="text-white">Unknown</Badge>;
     }
   };
 
@@ -64,8 +57,8 @@ export const AlertPanel = () => {
     return (
       <Card className="bg-slate-900 border-slate-700">
         <CardHeader>
-          <CardTitle>System Alerts</CardTitle>
-          <CardDescription>Loading alerts...</CardDescription>
+          <CardTitle className="text-white">System Alerts</CardTitle>
+          <CardDescription className="text-slate-300">Loading alerts...</CardDescription>
         </CardHeader>
       </Card>
     );
@@ -74,19 +67,19 @@ export const AlertPanel = () => {
   return (
     <Card className="bg-slate-900 border-slate-700">
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+        <CardTitle className="flex items-center justify-between text-white">
           <span>System Alerts</span>
-          <Badge variant="outline" className="border-slate-600">
+          <Badge variant="outline" className="border-slate-600 text-white">
             {activeAlerts.length}
           </Badge>
         </CardTitle>
-        <CardDescription>Recent system notifications</CardDescription>
+        <CardDescription className="text-slate-300">Recent system notifications</CardDescription>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-64">
           <div className="space-y-3">
             {activeAlerts.length === 0 ? (
-              <div className="text-center text-slate-400 py-8">
+              <div className="text-center text-slate-300 py-8">
                 No active alerts
               </div>
             ) : (
@@ -97,19 +90,19 @@ export const AlertPanel = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-6 w-6 p-0 hover:bg-slate-700"
+                      className="h-6 w-6 p-0 hover:bg-slate-700 text-white"
                       onClick={() => dismissAlert(alert.id)}
                     >
                       ×
                     </Button>
                   </div>
-                  <h4 className="text-sm font-medium text-slate-100 mb-1">
+                  <h4 className="text-sm font-medium text-white mb-1">
                     {alert.title}
                   </h4>
-                  <p className="text-xs text-slate-400 mb-2">
+                  <p className="text-xs text-slate-300 mb-2">
                     {alert.description}
                   </p>
-                  <div className="flex items-center justify-between text-xs text-slate-500">
+                  <div className="flex items-center justify-between text-xs text-slate-400">
                     <span>{formatTimeAgo(alert.created_at)}</span>
                     {alert.camera_id && (
                       <span className="text-blue-400">{alert.camera_id}</span>

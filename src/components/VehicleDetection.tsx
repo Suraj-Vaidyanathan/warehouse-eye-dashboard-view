@@ -121,7 +121,7 @@ export const VehicleDetection = () => {
         </div>
         
         <div className="mt-4 flex justify-between items-center">
-          <Button variant="outline" size="sm" className="border-slate-600 hover:bg-slate-700 text-white">
+          <Button variant="outline" size="sm" className="border-slate-600 hover:bg-slate-700">
             View All Records ({detectedVehicles.length})
           </Button>
           <Button 

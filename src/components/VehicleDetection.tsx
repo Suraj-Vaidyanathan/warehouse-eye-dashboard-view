@@ -127,7 +127,7 @@ export const VehicleDetection = () => {
           <Button 
             variant="outline" 
             size="sm" 
-            className="border-slate-600 hover:bg-slate-700 text-white"
+            className="border-slate-600 hover:bg-slate-700"
             onClick={handleExportData}
           >
             Export Data

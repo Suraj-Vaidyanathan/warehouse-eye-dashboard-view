@@ -65,7 +65,7 @@ export const SimulationControls = () => {
       <CardHeader>
         <CardTitle className="flex items-center justify-between text-white">
           <span>Data Simulation</span>
-          <Badge variant={isRunning ? "default" : "secondary"} className={isRunning ? "bg-green-600 text-white" : "text-white"}>
+          <Badge variant={isRunning ? "default" : "secondary"} className={isRunning ? "bg-green-600" : "text-black"}>
             {isRunning ? "Running" : "Stopped"}
           </Badge>
         </CardTitle>
@@ -107,7 +107,7 @@ export const SimulationControls = () => {
             <Button
               onClick={resetSimulation}
               variant="outline"
-              className="border-slate-600 hover:bg-slate-700 text-white"
+              className="border-slate-600 hover:bg-slate-700"
               size="sm"
             >
               <RotateCcw className="h-4 w-4" />

@@ -55,10 +55,19 @@ export const dataService = {
 
   // Camera management
   async updateCameraDetectionCount(cameraId: string) {
+    // First get current detection count
+    const { data: currentData } = await supabase
+      .from('cameras')
+      .select('detection_count')
+      .eq('id', cameraId)
+      .single();
+
+    const newCount = (currentData?.detection_count || 0) + 1;
+
     const { data, error } = await supabase
       .from('cameras')
       .update({ 
-        detection_count: supabase.sql`detection_count + 1`,
+        detection_count: newCount,
         last_detection: new Date().toISOString(),
         updated_at: new Date().toISOString()
       })

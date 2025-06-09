@@ -4,13 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
 type TableName = keyof Database['public']['Tables'];
-type TableRow<T extends TableName> = Database['public']['Tables'][T]['Row'];
 
-export const useRealtimeData = <T extends TableName>(
-  tableName: T,
-  initialData: TableRow<T>[] = []
-) => {
-  const [data, setData] = useState<TableRow<T>[]>(initialData);
+export const useRealtimeData = (tableName: TableName) => {
+  const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,7 +20,7 @@ export const useRealtimeData = <T extends TableName>(
           .order('created_at', { ascending: false });
         
         if (error) throw error;
-        setData((fetchedData as TableRow<T>[]) || []);
+        setData(fetchedData || []);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
         console.error(`Error fetching ${tableName}:`, err);
@@ -49,10 +45,10 @@ export const useRealtimeData = <T extends TableName>(
           console.log(`${tableName} change received:`, payload);
           
           if (payload.eventType === 'INSERT') {
-            setData(prev => [payload.new as TableRow<T>, ...prev]);
+            setData(prev => [payload.new as any, ...prev]);
           } else if (payload.eventType === 'UPDATE') {
             setData(prev => prev.map(item => 
-              (item as any).id === payload.new.id ? payload.new as TableRow<T> : item
+              (item as any).id === payload.new.id ? payload.new as any : item
             ));
           } else if (payload.eventType === 'DELETE') {
             setData(prev => prev.filter(item => 

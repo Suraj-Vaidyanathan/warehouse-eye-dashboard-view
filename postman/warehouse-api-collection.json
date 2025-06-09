@@ -1,0 +1,248 @@
+
+{
+  "info": {
+    "name": "Warehouse API Collection",
+    "description": "Complete API collection for Warehouse Management System",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://ntctmdwxyjnxconnsirk.supabase.co/functions/v1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Goods Management",
+      "item": [
+        {
+          "name": "Get All Goods",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/warehouse-api/goods",
+              "host": ["{{baseUrl}}"],
+              "path": ["warehouse-api", "goods"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create New Goods",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"item_name\": \"Sample Package\",\n  \"quantity\": 3,\n  \"location\": \"Receiving Bay A\",\n  \"camera_id\": \"CAM-001\",\n  \"confidence_score\": 95.8,\n  \"batch_id\": \"BATCH-001\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/warehouse-api/goods",
+              "host": ["{{baseUrl}}"],
+              "path": ["warehouse-api", "goods"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Vehicle Management",
+      "item": [
+        {
+          "name": "Get All Vehicles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/warehouse-api/vehicles",
+              "host": ["{{baseUrl}}"],
+              "path": ["warehouse-api", "vehicles"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create New Vehicle",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"license_plate\": \"ABC-123\",\n  \"vehicle_type\": \"truck\",\n  \"location\": \"Gate A\",\n  \"camera_id\": \"CAM-002\",\n  \"confidence_score\": 97.2,\n  \"driver_name\": \"John Doe\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/warehouse-api/vehicles",
+              "host": ["{{baseUrl}}"],
+              "path": ["warehouse-api", "vehicles"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Alert Management",
+      "item": [
+        {
+          "name": "Create Alert",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"alert_type\": \"warning\",\n  \"title\": \"Low Detection Accuracy\",\n  \"description\": \"Camera accuracy dropped below threshold\",\n  \"camera_id\": \"CAM-003\",\n  \"location\": \"Storage Zone B\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/warehouse-api/alerts",
+              "host": ["{{baseUrl}}"],
+              "path": ["warehouse-api", "alerts"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "item": [
+        {
+          "name": "Get Throughput Analytics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/warehouse-api/analytics/throughput",
+              "host": ["{{baseUrl}}"],
+              "path": ["warehouse-api", "analytics", "throughput"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Accuracy Analytics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/warehouse-api/analytics/accuracy",
+              "host": ["{{baseUrl}}"],
+              "path": ["warehouse-api", "analytics", "accuracy"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Vehicle Analytics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/warehouse-api/analytics/vehicles",
+              "host": ["{{baseUrl}}"],
+              "path": ["warehouse-api", "analytics", "vehicles"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Goods Analytics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/warehouse-api/analytics/goods",
+              "host": ["{{baseUrl}}"],
+              "path": ["warehouse-api", "analytics", "goods"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Simulation",
+      "item": [
+        {
+          "name": "Generate Simulation Data",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/warehouse-api/simulate-data",
+              "host": ["{{baseUrl}}"],
+              "path": ["warehouse-api", "simulate-data"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Error Testing",
+      "item": [
+        {
+          "name": "Test 404 Error",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/warehouse-api/nonexistent",
+              "host": ["{{baseUrl}}"],
+              "path": ["warehouse-api", "nonexistent"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Test Invalid JSON",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "invalid json content"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/warehouse-api/goods",
+              "host": ["{{baseUrl}}"],
+              "path": ["warehouse-api", "goods"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

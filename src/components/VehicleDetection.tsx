@@ -1,61 +1,29 @@
 
-import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useRealtimeData } from "@/hooks/useRealtimeData";
+import { dataService } from "@/services/dataService";
+import { useToast } from "@/hooks/use-toast";
 
 interface DetectedVehicle {
   id: string;
-  licensePlate: string;
-  timestamp: Date;
+  license_plate: string;
+  detected_at: string;
   location: string;
-  confidence: number;
-  vehicleType: "truck" | "van" | "car" | "forklift";
+  confidence_score: number;
+  vehicle_type: "truck" | "van" | "car" | "forklift";
+  status: string;
 }
 
 export const VehicleDetection = () => {
-  const [detectedVehicles, setDetectedVehicles] = useState<DetectedVehicle[]>([
-    {
-      id: "1",
-      licensePlate: "ABC-123",
-      timestamp: new Date(Date.now() - 300000),
-      location: "Gate A",
-      confidence: 98.5,
-      vehicleType: "truck"
-    },
-    {
-      id: "2",
-      licensePlate: "XYZ-789",
-      timestamp: new Date(Date.now() - 150000),
-      location: "Loading Dock 2",
-      confidence: 95.2,
-      vehicleType: "van"
-    }
-  ]);
+  const { data: detectedVehicles, loading } = useRealtimeData<DetectedVehicle>('vehicles');
+  const { toast } = useToast();
 
-  useEffect(() => {
-    // Simulate real-time vehicle detection
-    const interval = setInterval(() => {
-      if (Math.random() > 0.7) {
-        const licensePlates = ["DEF-456", "GHI-789", "JKL-012", "MNO-345", "PQR-678"];
-        const locations = ["Gate A", "Gate B", "Loading Dock 1", "Loading Dock 2", "Parking Area"];
-        const vehicleTypes: ("truck" | "van" | "car" | "forklift")[] = ["truck", "van", "car", "forklift"];
-        
-        const newVehicle: DetectedVehicle = {
-          id: Math.random().toString(36).substr(2, 9),
-          licensePlate: licensePlates[Math.floor(Math.random() * licensePlates.length)],
-          timestamp: new Date(),
-          location: locations[Math.floor(Math.random() * locations.length)],
-          confidence: 90 + Math.random() * 10,
-          vehicleType: vehicleTypes[Math.floor(Math.random() * vehicleTypes.length)]
-        };
-
-        setDetectedVehicles(prev => [newVehicle, ...prev.slice(0, 9)]);
-      }
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
+  // Filter only active/recent vehicles
+  const recentVehicles = detectedVehicles
+    .filter(vehicle => vehicle.status === 'active')
+    .slice(0, 10);
 
   const getVehicleTypeColor = (type: string) => {
     switch (type) {
@@ -67,49 +35,108 @@ export const VehicleDetection = () => {
     }
   };
 
+  const handleExportData = async () => {
+    try {
+      const csvData = detectedVehicles.map(vehicle => ({
+        license_plate: vehicle.license_plate,
+        vehicle_type: vehicle.vehicle_type,
+        location: vehicle.location,
+        detected_at: vehicle.detected_at,
+        confidence_score: vehicle.confidence_score
+      }));
+
+      const csvContent = [
+        ['License Plate', 'Vehicle Type', 'Location', 'Detected At', 'Confidence Score'],
+        ...csvData.map(row => Object.values(row))
+      ].map(row => row.join(',')).join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `vehicle_data_${new Date().toISOString().split('T')[0]}.csv`;
+      link.click();
+      window.URL.revokeObjectURL(url);
+
+      toast({
+        title: "Data exported",
+        description: "Vehicle data has been exported to CSV file.",
+      });
+    } catch (error) {
+      console.error('Error exporting data:', error);
+      toast({
+        title: "Export failed",
+        description: "Failed to export vehicle data. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <Card className="bg-slate-900 border-slate-700">
+        <CardHeader>
+          <CardTitle>Vehicle Detection & License Plates</CardTitle>
+          <CardDescription>Loading vehicle data...</CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
+
   return (
     <Card className="bg-slate-900 border-slate-700">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>Vehicle Detection & License Plates</span>
           <Badge className="bg-green-600 hover:bg-green-700">
-            {detectedVehicles.length} Recent
+            {recentVehicles.length} Recent
           </Badge>
         </CardTitle>
         <CardDescription>Real-time license plate recognition and vehicle tracking</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-3 max-h-64 overflow-y-auto">
-          {detectedVehicles.map((vehicle) => (
+          {recentVehicles.map((vehicle) => (
             <div key={vehicle.id} className="flex items-center justify-between p-3 bg-slate-800 rounded-lg border border-slate-700">
               <div className="flex items-center space-x-3">
-                <Badge className={`${getVehicleTypeColor(vehicle.vehicleType)} text-white`}>
-                  {vehicle.vehicleType.toUpperCase()}
+                <Badge className={`${getVehicleTypeColor(vehicle.vehicle_type)} text-white`}>
+                  {vehicle.vehicle_type.toUpperCase()}
                 </Badge>
                 <div>
                   <div className="font-mono text-lg font-bold text-slate-100">
-                    {vehicle.licensePlate}
+                    {vehicle.license_plate}
                   </div>
                   <div className="text-xs text-slate-400">
-                    {vehicle.location} • {vehicle.timestamp.toLocaleTimeString()}
+                    {vehicle.location} • {new Date(vehicle.detected_at).toLocaleTimeString()}
                   </div>
                 </div>
               </div>
               <div className="text-right">
                 <div className="text-sm font-medium text-green-400">
-                  {vehicle.confidence.toFixed(1)}%
+                  {vehicle.confidence_score.toFixed(1)}%
                 </div>
                 <div className="text-xs text-slate-500">Confidence</div>
               </div>
             </div>
           ))}
+          
+          {recentVehicles.length === 0 && (
+            <div className="text-center text-slate-400 py-8">
+              No recent vehicle detections
+            </div>
+          )}
         </div>
         
         <div className="mt-4 flex justify-between items-center">
           <Button variant="outline" size="sm" className="border-slate-600 hover:bg-slate-700">
-            View All Records
+            View All Records ({detectedVehicles.length})
           </Button>
-          <Button variant="outline" size="sm" className="border-slate-600 hover:bg-slate-700">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="border-slate-600 hover:bg-slate-700"
+            onClick={handleExportData}
+          >
             Export Data
           </Button>
         </div>

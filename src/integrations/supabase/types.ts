@@ -9,7 +9,246 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      activities: {
+        Row: {
+          activity_type: string
+          camera_id: string | null
+          created_at: string
+          description: string
+          id: string
+          location: string | null
+          metadata: Json | null
+        }
+        Insert: {
+          activity_type: string
+          camera_id?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          location?: string | null
+          metadata?: Json | null
+        }
+        Update: {
+          activity_type?: string
+          camera_id?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          location?: string | null
+          metadata?: Json | null
+        }
+        Relationships: []
+      }
+      alerts: {
+        Row: {
+          alert_type: string
+          camera_id: string | null
+          created_at: string
+          description: string
+          id: string
+          location: string | null
+          resolved_at: string | null
+          status: string
+          title: string
+        }
+        Insert: {
+          alert_type: string
+          camera_id?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          location?: string | null
+          resolved_at?: string | null
+          status?: string
+          title: string
+        }
+        Update: {
+          alert_type?: string
+          camera_id?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          location?: string | null
+          resolved_at?: string | null
+          status?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      analytics_data: {
+        Row: {
+          camera_id: string | null
+          created_at: string
+          hour_timestamp: string
+          id: string
+          location: string | null
+          metric_type: string
+          value: number
+        }
+        Insert: {
+          camera_id?: string | null
+          created_at?: string
+          hour_timestamp: string
+          id?: string
+          location?: string | null
+          metric_type: string
+          value: number
+        }
+        Update: {
+          camera_id?: string | null
+          created_at?: string
+          hour_timestamp?: string
+          id?: string
+          location?: string | null
+          metric_type?: string
+          value?: number
+        }
+        Relationships: []
+      }
+      cameras: {
+        Row: {
+          created_at: string
+          detection_count: number
+          id: string
+          last_detection: string | null
+          location: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          detection_count?: number
+          id: string
+          last_detection?: string | null
+          location: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          detection_count?: number
+          id?: string
+          last_detection?: string | null
+          location?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      goods: {
+        Row: {
+          batch_id: string | null
+          camera_id: string | null
+          confidence_score: number | null
+          created_at: string
+          detected_at: string
+          id: string
+          item_name: string
+          location: string
+          quantity: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          batch_id?: string | null
+          camera_id?: string | null
+          confidence_score?: number | null
+          created_at?: string
+          detected_at?: string
+          id?: string
+          item_name: string
+          location: string
+          quantity?: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          batch_id?: string | null
+          camera_id?: string | null
+          confidence_score?: number | null
+          created_at?: string
+          detected_at?: string
+          id?: string
+          item_name?: string
+          location?: string
+          quantity?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      kpi_snapshots: {
+        Row: {
+          created_at: string
+          detection_accuracy: number
+          goods_transported: number
+          id: string
+          snapshot_date: string
+          system_uptime: number
+          vehicles_detected: number
+        }
+        Insert: {
+          created_at?: string
+          detection_accuracy?: number
+          goods_transported?: number
+          id?: string
+          snapshot_date?: string
+          system_uptime?: number
+          vehicles_detected?: number
+        }
+        Update: {
+          created_at?: string
+          detection_accuracy?: number
+          goods_transported?: number
+          id?: string
+          snapshot_date?: string
+          system_uptime?: number
+          vehicles_detected?: number
+        }
+        Relationships: []
+      }
+      vehicles: {
+        Row: {
+          camera_id: string | null
+          confidence_score: number | null
+          created_at: string
+          detected_at: string
+          driver_name: string | null
+          id: string
+          license_plate: string
+          location: string
+          status: string
+          updated_at: string
+          vehicle_type: string
+        }
+        Insert: {
+          camera_id?: string | null
+          confidence_score?: number | null
+          created_at?: string
+          detected_at?: string
+          driver_name?: string | null
+          id?: string
+          license_plate: string
+          location: string
+          status?: string
+          updated_at?: string
+          vehicle_type: string
+        }
+        Update: {
+          camera_id?: string | null
+          confidence_score?: number | null
+          created_at?: string
+          detected_at?: string
+          driver_name?: string | null
+          id?: string
+          license_plate?: string
+          location?: string
+          status?: string
+          updated_at?: string
+          vehicle_type?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

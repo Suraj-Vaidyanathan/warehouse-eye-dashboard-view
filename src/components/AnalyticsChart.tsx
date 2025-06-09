@@ -1,5 +1,6 @@
 
-import { useState, useEffect } from "react";
+import { AnalyticsChart as OriginalAnalyticsChart } from "./AnalyticsChart";
+import { useAnalyticsData } from "@/hooks/useAnalyticsData";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, BarChart, Bar } from "recharts";
 
 interface AnalyticsChartProps {
@@ -7,40 +8,15 @@ interface AnalyticsChartProps {
 }
 
 export const AnalyticsChart = ({ type }: AnalyticsChartProps) => {
-  const [data, setData] = useState<any[]>([]);
+  const { data, loading } = useAnalyticsData(type);
 
-  useEffect(() => {
-    // Generate sample data based on chart type
-    const generateData = () => {
-      const hours = Array.from({ length: 24 }, (_, i) => i);
-      
-      if (type === "throughput" || type === "goods") {
-        return hours.map(hour => ({
-          hour: `${hour.toString().padStart(2, '0')}:00`,
-          value: Math.floor(Math.random() * 200) + 300 + (hour > 8 && hour < 18 ? 200 : 0)
-        }));
-      } else if (type === "vehicles") {
-        return hours.map(hour => ({
-          hour: `${hour.toString().padStart(2, '0')}:00`,
-          value: Math.floor(Math.random() * 50) + 20 + (hour > 8 && hour < 18 ? 30 : 0)
-        }));
-      } else {
-        return hours.map(hour => ({
-          hour: `${hour.toString().padStart(2, '0')}:00`,
-          value: 95 + Math.random() * 4 // Accuracy between 95-99%
-        }));
-      }
-    };
-
-    setData(generateData());
-
-    // Update data every 30 seconds
-    const interval = setInterval(() => {
-      setData(generateData());
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, [type]);
+  if (loading) {
+    return (
+      <div className="h-64 w-full flex items-center justify-center">
+        <div className="text-slate-400">Loading analytics data...</div>
+      </div>
+    );
+  }
 
   const isBarChart = type === "throughput" || type === "goods" || type === "vehicles";
   const color = type === "vehicles" ? "#10B981" : type === "goods" ? "#3B82F6" : "#F59E0B";

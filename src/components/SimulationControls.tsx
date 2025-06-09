@@ -31,7 +31,7 @@ export const SimulationControls = () => {
         });
 
         if (response.ok) {
-          setSimulationCount(prev => prev + 1);
+          setSimulationCount(simulationCount => simulationCount + 1);
         }
       } catch (error) {
         console.error('Simulation error:', error);

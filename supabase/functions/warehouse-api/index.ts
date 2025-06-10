@@ -183,7 +183,9 @@ serve(async (req) => {
       // Generate random license plates
       const licensePlates = [
         'ABC-123', 'XYZ-789', 'DEF-456', 'GHI-321', 'JKL-654',
-        'MNO-987', 'PQR-258', 'STU-741', 'VWX-963', 'YZA-147'
+        'MNO-987', 'PQR-258', 'STU-741', 'VWX-963', 'YZA-147',
+        'BMW-100', 'FORD-99', 'TESLA-X', 'AUDI-88', 'MERC-77',
+        'VOLVO-1', 'HONDA-2', 'TOYO-33', 'NISS-44', 'CHEV-55'
       ];
       
       // Simulate goods detection
@@ -202,8 +204,10 @@ serve(async (req) => {
         console.log('Goods inserted successfully:', goodsData)
       }
 
-      // Simulate vehicle detection (70% chance)
-      if (Math.random() > 0.3) {
+      // Simulate 1-2 vehicles per cycle (guaranteed vehicle detection)
+      const vehicleCount = Math.random() > 0.3 ? (Math.random() > 0.7 ? 2 : 1) : 1; // 1-2 vehicles, mostly 1
+      
+      for (let i = 0; i < vehicleCount; i++) {
         const vehicleData = {
           license_plate: licensePlates[Math.floor(Math.random() * licensePlates.length)],
           vehicle_type: ['truck', 'van', 'car', 'forklift'][Math.floor(Math.random() * 4)],

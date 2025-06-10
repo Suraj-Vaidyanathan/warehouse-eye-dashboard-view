@@ -1,73 +1,135 @@
-# Welcome to your Lovable project
 
-## Project info
+# Warehouse API Testing Guide
 
-**URL**: https://lovable.dev/projects/170a7940-b6d7-48ee-b407-5ad23db00eee
+## Overview
+This guide covers testing the Warehouse Management System API using the provided test cases and Postman collection.
 
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/170a7940-b6d7-48ee-b407-5ad23db00eee) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+## API Base URL
+```
+https://ntctmdwxyjnxconnsirk.supabase.co/functions/v1/warehouse-api
 ```
 
-**Edit a file directly in GitHub**
+## Test Cases
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### 1. Goods Management
+- **GET /goods** - Retrieve all goods
+- **POST /goods** - Create new goods entry
 
-**Use GitHub Codespaces**
+### 2. Vehicle Management  
+- **GET /vehicles** - Retrieve all vehicles
+- **POST /vehicles** - Create new vehicle entry
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### 3. Alert Management
+- **POST /alerts** - Create system alerts
 
-## What technologies are used for this project?
+### 4. Analytics
+- **GET /analytics/{type}** - Get analytics data by type
+  - Types: throughput, accuracy, vehicles, goods
 
-This project is built with:
+### 5. Simulation
+- **POST /simulate-data** - Generate test data
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Running Tests
 
-## How can I deploy this project?
+### Using Jest (Node.js)
+1. Install dependencies:
+```bash
+npm install jest node-fetch
+```
 
-Simply open [Lovable](https://lovable.dev/projects/170a7940-b6d7-48ee-b407-5ad23db00eee) and click on Share -> Publish.
+2. Add to package.json:
+```json
+{
+  "scripts": {
+    "test": "jest"
+  }
+}
+```
 
-## Can I connect a custom domain to my Lovable project?
+3. Run tests:
+```bash
+npm test
+```
 
-Yes, you can!
+### Using Postman
+1. Import the collection file: `postman/warehouse-api-collection.json`
+2. Set the environment variable `baseUrl` to your API endpoint
+3. Run individual requests or the entire collection
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Sample Requests
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+### Create Goods
+```json
+POST /warehouse-api/goods
+{
+  "item_name": "Sample Package",
+  "quantity": 3,
+  "location": "Receiving Bay A",
+  "camera_id": "CAM-001",
+  "confidence_score": 95.8
+}
+```
+
+### Create Vehicle
+```json
+POST /warehouse-api/vehicles
+{
+  "license_plate": "ABC-123",
+  "vehicle_type": "truck",
+  "location": "Gate A",
+  "camera_id": "CAM-002",
+  "confidence_score": 97.2
+}
+```
+
+### Create Alert
+```json
+POST /warehouse-api/alerts
+{
+  "alert_type": "warning",
+  "title": "Low Detection Accuracy",
+  "description": "Camera accuracy dropped below threshold",
+  "camera_id": "CAM-003",
+  "location": "Storage Zone B"
+}
+```
+
+## Expected Responses
+
+### Success Response (201 Created)
+```json
+{
+  "id": "uuid-here",
+  "item_name": "Sample Package",
+  "quantity": 3,
+  "location": "Receiving Bay A",
+  "status": "in_transit",
+  "detected_at": "2024-01-01T10:00:00Z",
+  "created_at": "2024-01-01T10:00:00Z"
+}
+```
+
+### Error Response (400 Bad Request)
+```json
+{
+  "error": "Missing required field: item_name"
+}
+```
+
+### Error Response (404 Not Found)
+```json
+{
+  "error": "Not Found"
+}
+```
+
+## Testing Checklist
+
+- [ ] All GET endpoints return 200 status
+- [ ] All POST endpoints return 201 status with valid data
+- [ ] Invalid requests return appropriate error codes
+- [ ] Response data includes all expected fields
+- [ ] Real-time updates work (check dashboard after API calls)
+- [ ] Simulation endpoint generates random data
+- [ ] Analytics endpoints return time-series data
+- [ ] CORS headers are present in responses

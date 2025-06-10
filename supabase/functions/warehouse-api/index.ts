@@ -176,58 +176,93 @@ serve(async (req) => {
       )
     }
 
-    // POST /warehouse-api/simulate-data - Simulate new detections for testing
+    // POST /warehouse-api/simulate-data - Enhanced simulation for consistent vehicle generation
     if (pathname === '/warehouse-api/simulate-data' && method === 'POST') {
-      console.log('Running simulation...')
+      console.log('Running enhanced simulation...')
       
-      // Generate random license plates
+      // Comprehensive license plate arrays for variety
       const licensePlates = [
         'ABC-123', 'XYZ-789', 'DEF-456', 'GHI-321', 'JKL-654',
         'MNO-987', 'PQR-258', 'STU-741', 'VWX-963', 'YZA-147',
         'BMW-100', 'FORD-99', 'TESLA-X', 'AUDI-88', 'MERC-77',
-        'VOLVO-1', 'HONDA-2', 'TOYO-33', 'NISS-44', 'CHEV-55'
+        'VOLVO-1', 'HONDA-2', 'TOYO-33', 'NISS-44', 'CHEV-55',
+        'TRUCK-1', 'VAN-001', 'CAR-999', 'LIFT-42', 'HAUL-23',
+        'DELIVERY-001', 'CARGO-777', 'SUPPLY-99', 'FLEET-42'
       ];
+      
+      const vehicleTypes = ['truck', 'van', 'car', 'forklift'];
+      const locations = ['Gate A', 'Gate B', 'Loading Dock 1', 'Loading Dock 2'];
+      const cameras = ['CAM-001', 'CAM-002', 'CAM-003', 'CAM-004'];
       
       // Simulate goods detection
       const goodsData = {
         item_name: `Package-${Math.floor(Math.random() * 1000)}`,
         quantity: Math.floor(Math.random() * 5) + 1,
         location: ['Receiving Bay A', 'Storage Zone B', 'Packing Station'][Math.floor(Math.random() * 3)],
-        camera_id: `CAM-00${Math.floor(Math.random() * 4) + 1}`,
+        camera_id: cameras[Math.floor(Math.random() * cameras.length)],
         confidence_score: 90 + Math.random() * 10
       }
 
-      const { error: goodsError } = await supabaseClient.from('goods').insert([goodsData])
-      if (goodsError) {
-        console.error('Error inserting goods:', goodsError)
-      } else {
-        console.log('Goods inserted successfully:', goodsData)
+      try {
+        const { error: goodsError } = await supabaseClient.from('goods').insert([goodsData])
+        if (goodsError) {
+          console.error('Error inserting goods:', goodsError)
+        } else {
+          console.log('Goods inserted successfully:', goodsData)
+        }
+      } catch (e) {
+        console.error('Exception inserting goods:', e)
       }
 
-      // Simulate 1-2 vehicles per cycle (guaranteed vehicle detection)
-      const vehicleCount = Math.random() > 0.3 ? (Math.random() > 0.7 ? 2 : 1) : 1; // 1-2 vehicles, mostly 1
+      // GUARANTEED vehicle generation - always add 1-2 vehicles per cycle
+      const vehicleCount = Math.random() > 0.4 ? 2 : 1; // 60% chance of 2 vehicles, 40% chance of 1
+      console.log(`Generating ${vehicleCount} vehicles this cycle`)
       
       for (let i = 0; i < vehicleCount; i++) {
         const vehicleData = {
           license_plate: licensePlates[Math.floor(Math.random() * licensePlates.length)],
-          vehicle_type: ['truck', 'van', 'car', 'forklift'][Math.floor(Math.random() * 4)],
-          location: ['Gate A', 'Gate B', 'Loading Dock 1', 'Loading Dock 2'][Math.floor(Math.random() * 4)],
-          camera_id: `CAM-00${Math.floor(Math.random() * 4) + 1}`,
-          confidence_score: 90 + Math.random() * 10
+          vehicle_type: vehicleTypes[Math.floor(Math.random() * vehicleTypes.length)],
+          location: locations[Math.floor(Math.random() * locations.length)],
+          camera_id: cameras[Math.floor(Math.random() * cameras.length)],
+          confidence_score: 85 + Math.random() * 15, // 85-100% confidence
+          status: 'active'
         }
 
-        const { error: vehicleError } = await supabaseClient.from('vehicles').insert([vehicleData])
-        if (vehicleError) {
-          console.error('Error inserting vehicle:', vehicleError)
-        } else {
-          console.log('Vehicle inserted successfully:', vehicleData)
+        try {
+          const { data: vehicleResult, error: vehicleError } = await supabaseClient
+            .from('vehicles')
+            .insert([vehicleData])
+            .select()
+            .single()
+
+          if (vehicleError) {
+            console.error(`Error inserting vehicle ${i + 1}:`, vehicleError)
+          } else {
+            console.log(`Vehicle ${i + 1} inserted successfully:`, vehicleResult)
+            
+            // Log activity for vehicle detection
+            await supabaseClient
+              .from('activities')
+              .insert([{
+                activity_type: 'detection',
+                description: `Vehicle detected: ${vehicleData.license_plate} (${vehicleData.vehicle_type})`,
+                camera_id: vehicleData.camera_id,
+                location: vehicleData.location
+              }])
+          }
+        } catch (e) {
+          console.error(`Exception inserting vehicle ${i + 1}:`, e)
         }
       }
 
-      console.log('Simulation completed successfully')
+      console.log('Enhanced simulation completed successfully')
 
       return new Response(
-        JSON.stringify({ message: 'Simulation data added successfully' }),
+        JSON.stringify({ 
+          message: 'Simulation data added successfully',
+          vehicles_added: vehicleCount,
+          goods_added: 1
+        }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 200,

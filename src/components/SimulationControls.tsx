@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const SimulationControls = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [simulationCount, setSimulationCount] = useState(0);
+  const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
 
   const startSimulation = async () => {
@@ -24,9 +25,8 @@ export const SimulationControls = () => {
     // Run simulation every 5 seconds
     const interval = setInterval(async () => {
       try {
-        console.log('Running simulation...');
+        console.log('Running simulation cycle...');
         
-        // Use Supabase client to call the edge function
         const { data, error } = await supabase.functions.invoke('warehouse-api/simulate-data', {
           method: 'POST',
           headers: {
@@ -43,7 +43,7 @@ export const SimulationControls = () => {
           });
         } else {
           console.log('Simulation successful:', data);
-          setSimulationCount(simulationCount => simulationCount + 1);
+          setSimulationCount(prev => prev + 1);
         }
       } catch (error) {
         console.error('Simulation error:', error);
@@ -55,26 +55,47 @@ export const SimulationControls = () => {
       }
     }, 5000);
 
-    // Store interval ID for cleanup
-    (window as any).simulationInterval = interval;
+    setIntervalId(interval);
   };
 
   const stopSimulation = () => {
     setIsRunning(false);
-    clearInterval((window as any).simulationInterval);
+    if (intervalId) {
+      clearInterval(intervalId);
+      setIntervalId(null);
+    }
     toast({
       title: "Simulation Stopped",
       description: "Data simulation has been stopped.",
     });
   };
 
-  const resetSimulation = () => {
+  const resetSimulation = async () => {
+    // Stop simulation first
     stopSimulation();
-    setSimulationCount(0);
-    toast({
-      title: "Simulation Reset",
-      description: "Simulation counter has been reset.",
-    });
+    
+    try {
+      // Reset database by clearing all tables
+      await supabase.from('vehicles').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      await supabase.from('goods').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      await supabase.from('activities').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      await supabase.from('alerts').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      
+      // Reset simulation counter
+      setSimulationCount(0);
+      
+      toast({
+        title: "Simulation Reset",
+        description: "All simulation data has been cleared from the database.",
+      });
+    } catch (error) {
+      console.error('Reset error:', error);
+      toast({
+        title: "Reset Error",
+        description: "Failed to reset simulation data.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

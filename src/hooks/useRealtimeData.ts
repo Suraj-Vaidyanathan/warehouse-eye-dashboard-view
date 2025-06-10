@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -10,32 +10,33 @@ export const useRealtimeData = (tableName: TableName) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      let query = supabase.from(tableName).select('*');
+      
+      // Use the appropriate timestamp field for ordering
+      if (tableName === 'vehicles' || tableName === 'goods') {
+        query = query.order('detected_at', { ascending: false });
+      } else {
+        query = query.order('created_at', { ascending: false });
+      }
+      
+      const { data: fetchedData, error } = await query;
+      
+      if (error) throw error;
+      setData(fetchedData || []);
+      console.log(`Fetched ${tableName} data:`, fetchedData);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+      console.error(`Error fetching ${tableName}:`, err);
+    } finally {
+      setLoading(false);
+    }
+  }, [tableName]);
+
   useEffect(() => {
     // Fetch initial data
-    const fetchData = async () => {
-      try {
-        let query = supabase.from(tableName).select('*');
-        
-        // Use the appropriate timestamp field for ordering
-        if (tableName === 'vehicles' || tableName === 'goods') {
-          query = query.order('detected_at', { ascending: false });
-        } else {
-          query = query.order('created_at', { ascending: false });
-        }
-        
-        const { data: fetchedData, error } = await query;
-        
-        if (error) throw error;
-        setData(fetchedData || []);
-        console.log(`Fetched ${tableName} data:`, fetchedData);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-        console.error(`Error fetching ${tableName}:`, err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
 
     // Set up real-time subscription
@@ -69,7 +70,7 @@ export const useRealtimeData = (tableName: TableName) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [tableName]);
+  }, [tableName, fetchData]);
 
-  return { data, loading, error };
+  return { data, loading, error, refetch: fetchData };
 };

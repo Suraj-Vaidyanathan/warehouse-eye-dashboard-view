@@ -4,17 +4,32 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useRealtimeData } from "@/hooks/useRealtimeData";
 import { useToast } from "@/hooks/use-toast";
+import { useState, useEffect } from "react";
 
 export const VehicleDetection = () => {
-  const { data: detectedVehicles, loading } = useRealtimeData('vehicles');
+  const { data: detectedVehicles, loading, refetch } = useRealtimeData('vehicles');
   const { toast } = useToast();
+  const [showAll, setShowAll] = useState(false);
+
+  // Listen for simulation reset events
+  useEffect(() => {
+    const handleReset = () => {
+      console.log('Simulation reset detected, refreshing vehicle data...');
+      if (refetch) {
+        refetch();
+      }
+    };
+
+    window.addEventListener('simulation-reset', handleReset);
+    return () => window.removeEventListener('simulation-reset', handleReset);
+  }, [refetch]);
 
   console.log('Vehicle Detection - All vehicles:', detectedVehicles);
 
   // Filter only active/recent vehicles
   const recentVehicles = detectedVehicles
     .filter(vehicle => vehicle.status === 'active')
-    .slice(0, 10);
+    .slice(0, showAll ? detectedVehicles.length : 10);
 
   console.log('Vehicle Detection - Recent vehicles:', recentVehicles);
 
@@ -80,6 +95,10 @@ export const VehicleDetection = () => {
     }
   };
 
+  const toggleViewAll = () => {
+    setShowAll(!showAll);
+  };
+
   if (loading) {
     return (
       <Card className="bg-slate-900 border-slate-700">
@@ -97,7 +116,7 @@ export const VehicleDetection = () => {
         <CardTitle className="flex items-center justify-between text-white">
           <span>Vehicle Detection & License Plates</span>
           <Badge className="bg-green-600 hover:bg-green-700 text-white">
-            {recentVehicles.length} Recent
+            {recentVehicles.length} {showAll ? 'Total' : 'Recent'}
           </Badge>
         </CardTitle>
         <CardDescription className="text-slate-300">Real-time license plate recognition and vehicle tracking</CardDescription>
@@ -136,8 +155,13 @@ export const VehicleDetection = () => {
         </div>
         
         <div className="mt-4 flex justify-between items-center">
-          <Button variant="outline" size="sm" className="border-slate-600 hover:bg-slate-700">
-            View All Records ({detectedVehicles.length})
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="border-slate-600 hover:bg-slate-700"
+            onClick={toggleViewAll}
+          >
+            {showAll ? `Show Recent Only` : `View All Records (${detectedVehicles.length})`}
           </Button>
           <Button 
             variant="outline" 

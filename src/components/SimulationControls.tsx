@@ -76,13 +76,21 @@ export const SimulationControls = () => {
     
     try {
       // Reset database by clearing all tables
-      await supabase.from('vehicles').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-      await supabase.from('goods').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-      await supabase.from('activities').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-      await supabase.from('alerts').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      const { error: vehiclesError } = await supabase.from('vehicles').delete().gt('id', '00000000-0000-0000-0000-000000000000');
+      const { error: goodsError } = await supabase.from('goods').delete().gt('id', '00000000-0000-0000-0000-000000000000');
+      const { error: activitiesError } = await supabase.from('activities').delete().gt('id', '00000000-0000-0000-0000-000000000000');
+      const { error: alertsError } = await supabase.from('alerts').delete().gt('id', '00000000-0000-0000-0000-000000000000');
+      
+      if (vehiclesError || goodsError || activitiesError || alertsError) {
+        console.error('Reset errors:', { vehiclesError, goodsError, activitiesError, alertsError });
+        throw new Error('Failed to reset some tables');
+      }
       
       // Reset simulation counter
       setSimulationCount(0);
+      
+      // Force refresh of all real-time subscriptions by triggering a window event
+      window.dispatchEvent(new CustomEvent('simulation-reset'));
       
       toast({
         title: "Simulation Reset",

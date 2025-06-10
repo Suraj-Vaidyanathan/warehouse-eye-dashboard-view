@@ -67,6 +67,7 @@ export const VideoFeed = ({ cameraId, location, detectionCount, status }: VideoF
         <div className="relative aspect-video bg-gradient-to-br from-slate-700 to-slate-800">
           {/* Simulated video background */}
           <div className="absolute inset-0 bg-slate-700 opacity-90">
+            <video src="./Sample_Video.mov" autoPlay loop muted className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-r from-blue-900/20 to-purple-900/20 animate-pulse"></div>
             
             {/* Simulated detection boxes */}

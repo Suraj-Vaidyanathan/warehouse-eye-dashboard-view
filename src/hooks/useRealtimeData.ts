@@ -14,13 +14,20 @@ export const useRealtimeData = (tableName: TableName) => {
     // Fetch initial data
     const fetchData = async () => {
       try {
-        const { data: fetchedData, error } = await supabase
-          .from(tableName)
-          .select('*')
-          .order('created_at', { ascending: false });
+        let query = supabase.from(tableName).select('*');
+        
+        // Use the appropriate timestamp field for ordering
+        if (tableName === 'vehicles' || tableName === 'goods') {
+          query = query.order('detected_at', { ascending: false });
+        } else {
+          query = query.order('created_at', { ascending: false });
+        }
+        
+        const { data: fetchedData, error } = await query;
         
         if (error) throw error;
         setData(fetchedData || []);
+        console.log(`Fetched ${tableName} data:`, fetchedData);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
         console.error(`Error fetching ${tableName}:`, err);

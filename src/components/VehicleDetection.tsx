@@ -3,20 +3,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useRealtimeData } from "@/hooks/useRealtimeData";
-import { dataService } from "@/services/dataService";
 import { useToast } from "@/hooks/use-toast";
-import type { Database } from "@/integrations/supabase/types";
-
-type DetectedVehicle = Database['public']['Tables']['vehicles']['Row'];
 
 export const VehicleDetection = () => {
   const { data: detectedVehicles, loading } = useRealtimeData('vehicles');
   const { toast } = useToast();
 
+  console.log('Vehicle Detection - All vehicles:', detectedVehicles);
+
   // Filter only active/recent vehicles
   const recentVehicles = detectedVehicles
     .filter(vehicle => vehicle.status === 'active')
     .slice(0, 10);
+
+  console.log('Vehicle Detection - Recent vehicles:', recentVehicles);
 
   const getVehicleTypeColor = (type: string) => {
     switch (type) {
@@ -30,17 +30,32 @@ export const VehicleDetection = () => {
 
   const handleExportData = async () => {
     try {
+      if (detectedVehicles.length === 0) {
+        toast({
+          title: "No data to export",
+          description: "There are no vehicle records to export.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const csvData = detectedVehicles.map(vehicle => ({
-        license_plate: vehicle.license_plate,
-        vehicle_type: vehicle.vehicle_type,
-        location: vehicle.location,
-        detected_at: vehicle.detected_at,
-        confidence_score: vehicle.confidence_score
+        license_plate: vehicle.license_plate || 'N/A',
+        vehicle_type: vehicle.vehicle_type || 'N/A',
+        location: vehicle.location || 'N/A',
+        detected_at: vehicle.detected_at || vehicle.created_at,
+        confidence_score: vehicle.confidence_score || 'N/A'
       }));
 
       const csvContent = [
         ['License Plate', 'Vehicle Type', 'Location', 'Detected At', 'Confidence Score'],
-        ...csvData.map(row => Object.values(row))
+        ...csvData.map(row => [
+          row.license_plate,
+          row.vehicle_type,
+          row.location,
+          row.detected_at,
+          row.confidence_score
+        ])
       ].map(row => row.join(',')).join('\n');
 
       const blob = new Blob([csvContent], { type: 'text/csv' });
@@ -53,7 +68,7 @@ export const VehicleDetection = () => {
 
       toast({
         title: "Data exported",
-        description: "Vehicle data has been exported to CSV file.",
+        description: `Exported ${detectedVehicles.length} vehicle records to CSV file.`,
       });
     } catch (error) {
       console.error('Error exporting data:', error);
@@ -100,7 +115,7 @@ export const VehicleDetection = () => {
                     {vehicle.license_plate}
                   </div>
                   <div className="text-xs text-slate-300">
-                    {vehicle.location} • {new Date(vehicle.detected_at).toLocaleTimeString()}
+                    {vehicle.location} • {new Date(vehicle.detected_at || vehicle.created_at).toLocaleTimeString()}
                   </div>
                 </div>
               </div>

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Play, Pause, RotateCcw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export const SimulationControls = () => {
   const [isRunning, setIsRunning] = useState(false);
@@ -23,18 +24,34 @@ export const SimulationControls = () => {
     // Run simulation every 5 seconds
     const interval = setInterval(async () => {
       try {
-        const response = await fetch('/functions/v1/warehouse-api/simulate-data', {
+        console.log('Running simulation...');
+        
+        // Use Supabase client to call the edge function
+        const { data, error } = await supabase.functions.invoke('warehouse-api/simulate-data', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
         });
 
-        if (response.ok) {
+        if (error) {
+          console.error('Simulation error:', error);
+          toast({
+            title: "Simulation Error",
+            description: `Error: ${error.message}`,
+            variant: "destructive",
+          });
+        } else {
+          console.log('Simulation successful:', data);
           setSimulationCount(simulationCount => simulationCount + 1);
         }
       } catch (error) {
         console.error('Simulation error:', error);
+        toast({
+          title: "Simulation Error",
+          description: "Failed to run simulation cycle",
+          variant: "destructive",
+        });
       }
     }, 5000);
 
@@ -58,6 +75,57 @@ export const SimulationControls = () => {
       title: "Simulation Reset",
       description: "Simulation counter has been reset.",
     });
+  };
+
+  // Function to manually add some test vehicle data
+  const addTestVehicles = async () => {
+    try {
+      const testVehicles = [
+        {
+          license_plate: 'ABC-123',
+          vehicle_type: 'truck',
+          location: 'Gate A',
+          camera_id: 'CAM-001',
+          confidence_score: 95.5
+        },
+        {
+          license_plate: 'XYZ-789',
+          vehicle_type: 'van',
+          location: 'Gate B',
+          camera_id: 'CAM-002',
+          confidence_score: 92.3
+        },
+        {
+          license_plate: 'DEF-456',
+          vehicle_type: 'forklift',
+          location: 'Loading Dock 1',
+          camera_id: 'CAM-003',
+          confidence_score: 98.1
+        }
+      ];
+
+      for (const vehicle of testVehicles) {
+        const { error } = await supabase
+          .from('vehicles')
+          .insert([vehicle]);
+        
+        if (error) {
+          console.error('Error adding test vehicle:', error);
+        }
+      }
+
+      toast({
+        title: "Test Data Added",
+        description: "Sample vehicle records have been added to the database.",
+      });
+    } catch (error) {
+      console.error('Error adding test vehicles:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add test vehicle data.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -113,6 +181,15 @@ export const SimulationControls = () => {
               <RotateCcw className="h-4 w-4" />
             </Button>
           </div>
+
+          <Button
+            onClick={addTestVehicles}
+            variant="outline"
+            className="w-full border-slate-600 hover:bg-slate-700 text-white"
+            size="sm"
+          >
+            Add Test Vehicles
+          </Button>
           
           <div className="text-xs text-slate-400">
             Simulation adds random goods and vehicle detections every 5 seconds

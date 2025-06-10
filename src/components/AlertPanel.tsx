@@ -7,22 +7,19 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useRealtimeData } from "@/hooks/useRealtimeData";
 import { dataService } from "@/services/dataService";
 import { useToast } from "@/hooks/use-toast";
-import type { Database } from "@/integrations/supabase/types";
-
-type Alert = Database['public']['Tables']['alerts']['Row'];
 
 export const AlertPanel = () => {
   const { data: alerts, loading } = useRealtimeData('alerts');
   const { toast } = useToast();
 
   // Filter only active alerts
-  const activeAlerts = alerts.filter(alert => alert.status === 'active');
+  const activeAlerts = alerts.filter((alert: any) => alert.status === 'active');
 
   const getAlertBadge = (type: string) => {
     switch (type) {
       case "error": return <Badge variant="destructive">Error</Badge>;
       case "warning": return <Badge className="bg-amber-600 hover:bg-amber-700 text-white">Warning</Badge>;
-      case "info": return <Badge variant="secondary" className="text-white">Info</Badge>;
+      case "info": return <Badge variant="secondary" className="text-black bg-slate-300">Info</Badge>;
       default: return <Badge variant="secondary" className="text-white">Unknown</Badge>;
     }
   };
@@ -83,7 +80,7 @@ export const AlertPanel = () => {
                 No active alerts
               </div>
             ) : (
-              activeAlerts.map((alert) => (
+              activeAlerts.map((alert: any) => (
                 <div key={alert.id} className="p-3 bg-slate-800 rounded-lg border border-slate-700">
                   <div className="flex items-start justify-between mb-2">
                     {getAlertBadge(alert.alert_type)}

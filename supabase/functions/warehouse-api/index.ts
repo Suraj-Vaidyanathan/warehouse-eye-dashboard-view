@@ -23,6 +23,8 @@ serve(async (req) => {
     const pathname = url.pathname
     const method = req.method
 
+    console.log('Received request:', method, pathname)
+
     // GET /warehouse-api/goods - Get all goods
     if (pathname === '/warehouse-api/goods' && method === 'GET') {
       const { data, error } = await supabaseClient
@@ -176,6 +178,14 @@ serve(async (req) => {
 
     // POST /warehouse-api/simulate-data - Simulate new detections for testing
     if (pathname === '/warehouse-api/simulate-data' && method === 'POST') {
+      console.log('Running simulation...')
+      
+      // Generate random license plates
+      const licensePlates = [
+        'ABC-123', 'XYZ-789', 'DEF-456', 'GHI-321', 'JKL-654',
+        'MNO-987', 'PQR-258', 'STU-741', 'VWX-963', 'YZA-147'
+      ];
+      
       // Simulate goods detection
       const goodsData = {
         item_name: `Package-${Math.floor(Math.random() * 1000)}`,
@@ -185,20 +195,32 @@ serve(async (req) => {
         confidence_score: 90 + Math.random() * 10
       }
 
-      await supabaseClient.from('goods').insert([goodsData])
+      const { error: goodsError } = await supabaseClient.from('goods').insert([goodsData])
+      if (goodsError) {
+        console.error('Error inserting goods:', goodsError)
+      } else {
+        console.log('Goods inserted successfully:', goodsData)
+      }
 
-      // Simulate vehicle detection
-      if (Math.random() > 0.7) {
+      // Simulate vehicle detection (70% chance)
+      if (Math.random() > 0.3) {
         const vehicleData = {
-          license_plate: `ABC-${Math.floor(Math.random() * 999)}`,
+          license_plate: licensePlates[Math.floor(Math.random() * licensePlates.length)],
           vehicle_type: ['truck', 'van', 'car', 'forklift'][Math.floor(Math.random() * 4)],
           location: ['Gate A', 'Gate B', 'Loading Dock 1', 'Loading Dock 2'][Math.floor(Math.random() * 4)],
           camera_id: `CAM-00${Math.floor(Math.random() * 4) + 1}`,
           confidence_score: 90 + Math.random() * 10
         }
 
-        await supabaseClient.from('vehicles').insert([vehicleData])
+        const { error: vehicleError } = await supabaseClient.from('vehicles').insert([vehicleData])
+        if (vehicleError) {
+          console.error('Error inserting vehicle:', vehicleError)
+        } else {
+          console.log('Vehicle inserted successfully:', vehicleData)
+        }
       }
+
+      console.log('Simulation completed successfully')
 
       return new Response(
         JSON.stringify({ message: 'Simulation data added successfully' }),
@@ -218,6 +240,7 @@ serve(async (req) => {
     )
 
   } catch (error) {
+    console.error('Edge function error:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       {
